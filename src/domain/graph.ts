@@ -77,9 +77,10 @@ function topoSortInternal(graph: Graph): {
     }
   }
 
+  let head = 0;
   const order: string[] = [];
-  while (queue.length > 0) {
-    const id = queue.shift();
+  while (head < queue.length) {
+    const id = queue[head++];
     if (!id) {
       break;
     }
