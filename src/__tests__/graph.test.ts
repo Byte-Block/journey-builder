@@ -9,9 +9,10 @@ import {
   validateAcyclic,
 } from "@/domain/graph";
 import { GraphSchema } from "@/domain/schema";
-import type { Graph, GraphNode } from "@/domain/types";
+import type { Graph } from "@/domain/types";
 import { describe, expect, it } from "vitest";
 import mockGraphJson from "./fixtures/graph.json";
+import { makeNode } from "./helpers";
 
 const mockGraph = GraphSchema.parse(mockGraphJson);
 const idByName = new Map<string, string>(mockGraph.nodes.map((n) => [n.data.name, n.id]));
@@ -24,26 +25,6 @@ function nodeIdByName(name: string): string {
   }
 
   return id;
-}
-
-// Construct a synthetic graph node for cycle / edge-case tests.
-function makeNode(id: string, prerequisites: string[] = []): GraphNode {
-  return {
-    id,
-    type: "form",
-    position: { x: 0, y: 0 },
-    hidden: false,
-    data: {
-      id,
-      component_key: id,
-      component_id: `f_${id}`,
-      component_type: "form",
-      name: id,
-      prerequisites,
-      permitted_roles: [],
-      input_mapping: {},
-    },
-  };
 }
 
 // 2-node cycle (A → B → A) for cycle-detection tests.
@@ -203,15 +184,13 @@ describe("buildAncestorIndex", () => {
     }
   });
 
-  it("Throws CycleError on a cyclic graph", () => 
-    expect(() => buildAncestorIndex(cyclicGraph)).toThrow(CycleError)
-  );
+  it("Throws CycleError on a cyclic graph", () =>
+    expect(() => buildAncestorIndex(cyclicGraph)).toThrow(CycleError));
 });
 
 describe("assertEdgesMatchPrerequisites", () => {
-  it("Does not throw on the valid mock graph", () => 
-    expect(() => assertEdgesMatchPrerequisites(mockGraph)).not.toThrow()
-  );
+  it("Does not throw on the valid mock graph", () =>
+    expect(() => assertEdgesMatchPrerequisites(mockGraph)).not.toThrow());
 
   it("Throws when edges[] has an entry that prerequisites doesn't", () => {
     const inconsistent: Graph = {
