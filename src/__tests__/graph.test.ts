@@ -1,5 +1,7 @@
 import {
+  assertEdgesMatchPrerequisites,
   buildAdjacency,
+  buildAncestorIndex,
   CycleError,
   getDirectAncestors,
   getTransitiveAncestors,
@@ -170,5 +172,62 @@ describe("validateAcyclic", () => {
         expect(e.cycleNodes).toContain("B");
       }
     }
+  });
+});
+
+describe("buildAncestorIndex", () => {
+  const index = buildAncestorIndex(mockGraph);
+
+  it.each<[string, string[], string[]]>([
+    ["Form A", [], []],
+    ["Form B", ["Form A"], ["Form A"]],
+    ["Form C", ["Form A"], ["Form A"]],
+    ["Form D", ["Form B"], ["Form A", "Form B"]],
+    ["Form E", ["Form C"], ["Form A", "Form C"]],
+    ["Form F", ["Form D", "Form E"], ["Form A", "Form B", "Form C", "Form D", "Form E"]],
+  ])("%s has direct=%j and transitive=%j", (name, directNames, transitiveNames) => {
+    const id = nodeIdByName(name);
+    const entry = index.get(id);
+
+    expect(entry).toBeDefined();
+    expect(entry?.direct).toEqual(new Set(directNames.map(nodeIdByName)));
+    expect(entry?.transitive).toEqual(new Set(transitiveNames.map(nodeIdByName)));
+  });
+
+  it("Index agrees with the standalone helpers for every node", () => {
+    for (const node of mockGraph.nodes) {
+      const entry = index.get(node.id);
+
+      expect(entry?.direct).toEqual(getDirectAncestors(node.id, mockGraph));
+      expect(entry?.transitive).toEqual(getTransitiveAncestors(node.id, mockGraph));
+    }
+  });
+
+  it("Throws CycleError on a cyclic graph", () => 
+    expect(() => buildAncestorIndex(cyclicGraph)).toThrow(CycleError)
+  );
+});
+
+describe("assertEdgesMatchPrerequisites", () => {
+  it("Does not throw on the valid mock graph", () => 
+    expect(() => assertEdgesMatchPrerequisites(mockGraph)).not.toThrow()
+  );
+
+  it("Throws when edges[] has an entry that prerequisites doesn't", () => {
+    const inconsistent: Graph = {
+      ...mockGraph,
+      edges: [...mockGraph.edges, { source: "form-fake", target: "form-also-fake" }],
+    };
+
+    expect(() => assertEdgesMatchPrerequisites(inconsistent)).toThrow(/disagree/);
+  });
+
+  it("Throws when prerequisites has an edge that edges[] doesn't", () => {
+    const inconsistent: Graph = {
+      ...mockGraph,
+      edges: [],
+    };
+
+    expect(() => assertEdgesMatchPrerequisites(inconsistent)).toThrow(/disagree/);
   });
 });

@@ -128,3 +128,78 @@ export function validateAcyclic(graph: Graph): void {
     throw new CycleError(unprocessed);
   }
 }
+
+// One node's ancestor info — direct prerequisites and the transitive closure.
+type AncestorEntry = {
+  direct: ReadonlySet<string>;
+  transitive: ReadonlySet<string>;
+};
+
+// Per-node ancestor cache. Built once at graph load; consumers do O(1) lookups.
+export type AncestorIndex = ReadonlyMap<string, AncestorEntry>;
+
+// Build the ancestor index for every node in the graph. Throws CycleError on cycle.
+export function buildAncestorIndex(graph: Graph): AncestorIndex {
+  // Process in topological order so every parent is already in the index
+  // before we read it for the union.
+  const { order, unprocessed } = topoSortInternal(graph);
+  if (unprocessed.length) {
+    throw new CycleError(unprocessed);
+  }
+
+  const index = new Map<string, AncestorEntry>();
+
+  for (const id of order) {
+    const direct = getDirectAncestors(id, graph);
+    const transitive = new Set<string>();
+
+    // transitive(n) = direct(n) ∪ ⋃ transitive(parent)
+    for (const parent of direct) {
+      transitive.add(parent);
+      const parentEntry = index.get(parent);
+      if (parentEntry) {
+        for (const ancestor of parentEntry.transitive) {
+          transitive.add(ancestor);
+        }
+      }
+    }
+
+    index.set(id, { direct, transitive });
+  }
+
+  return index;
+}
+
+// Sanity check that node.data.prerequisites and the top-level edges[] agree.
+// Production sends both representations; we trust prerequisites for traversal
+// but we want to fail loud if the two ever diverge.
+export function assertEdgesMatchPrerequisites(graph: Graph): void {
+  // Build the set of edges implied by prerequisites: { "source→target" }
+  const fromPrereqs = new Set<string>();
+  for (const node of graph.nodes) {
+    for (const parent of node.data.prerequisites) {
+      fromPrereqs.add(`${parent}→${node.id}`);
+    }
+  }
+
+  // Build the set of edges from the top-level edges[]
+  const fromEdges = new Set<string>();
+  for (const edge of graph.edges) {
+    fromEdges.add(`${edge.source}→${edge.target}`);
+  }
+
+  // Symmetric difference: anything present in one but not the other is divergence
+  const onlyInPrereqs = [...fromPrereqs].filter((e) => !fromEdges.has(e));
+  const onlyInEdges = [...fromEdges].filter((e) => !fromPrereqs.has(e));
+
+  if (onlyInPrereqs.length || onlyInEdges.length) {
+    const details: string[] = [];
+    if (onlyInPrereqs.length) {
+      details.push(`only in prerequisites: ${onlyInPrereqs.join(", ")}`);
+    }
+    if (onlyInEdges.length) {
+      details.push(`only in edges[]: ${onlyInEdges.join(", ")}`);
+    }
+    throw new Error(`edges[] and prerequisites disagree — ${details.join("; ")}`);
+  }
+}
