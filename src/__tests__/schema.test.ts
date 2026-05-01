@@ -1,15 +1,15 @@
 import { FieldDefSchema, GraphSchema, ProblemDetailsSchema } from "@/domain/schema";
 import { describe, expect, it } from "vitest";
-import mockGraph from "./fixtures/graph.json";
+import mockGraphJson from "./fixtures/graph.json";
 
 describe("GraphSchema", () => {
   it("Parses a valid graph", () => {
-    const result = GraphSchema.safeParse(mockGraph);
+    const result = GraphSchema.safeParse(mockGraphJson);
     expect(result.success).toBe(true);
   });
 
   it("Rejects a graph missing tenant_id", () => {
-    const corrupted: Record<string, unknown> = { ...mockGraph };
+    const corrupted: Record<string, unknown> = { ...mockGraphJson };
     delete corrupted.tenant_id;
 
     const result = GraphSchema.safeParse(corrupted);
@@ -22,7 +22,7 @@ describe("GraphSchema", () => {
   });
 
   it("Rejects branches with wrong type", () => {
-    const corrupted = { ...mockGraph, branches: "not-an-array" };
+    const corrupted = { ...mockGraphJson, branches: "not-an-array" };
     const result = GraphSchema.safeParse(corrupted);
 
     expect(result.success).toBe(false);
@@ -39,20 +39,16 @@ describe("FieldDefSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("Accepts all 6 valid avantos_type values", () => {
-    const valid = [
-      "short-text",
-      "multi-line-text",
-      "multi-select",
-      "checkbox-group",
-      "button",
-      "object-enum",
-    ] as const;
-
-    for (const t of valid) {
-      const result = FieldDefSchema.safeParse({ avantos_type: t, type: "string" });
-      expect(result.success).toBe(true);
-    }
+  it.each([
+    "short-text",
+    "multi-line-text",
+    "multi-select",
+    "checkbox-group",
+    "button",
+    "object-enum",
+  ] as const)("Accepts avantos_type '%s'", (t) => {
+    const result = FieldDefSchema.safeParse({ avantos_type: t, type: "string" });
+    expect(result.success).toBe(true);
   });
 });
 
