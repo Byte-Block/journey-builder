@@ -10,7 +10,7 @@ export const AvantosTypeSchema = z.enum([
   "object-enum",
 ]);
 
-// One field within a form (e.g. "email", "name").
+// Single form field (e.g. "email", "name").
 export const FieldDefSchema = z
   .object({
     avantos_type: AvantosTypeSchema,
@@ -20,7 +20,7 @@ export const FieldDefSchema = z
   })
   .loose();
 
-// A form definition — fields, JS hooks, prefill mapping rules.
+// Form definition — fields, JS hooks, prefill mapping rules.
 export const FormDefSchema = z
   .object({
     id: z.string(),
