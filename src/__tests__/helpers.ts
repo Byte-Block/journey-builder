@@ -1,4 +1,15 @@
 import type { GraphNode } from "@/domain/types";
+import { expect } from "vitest";
+
+// Returns the typed error so callers can assert on its fields.
+export async function rejectsAs<T>(
+  promise: Promise<unknown>,
+  ctor: new (...args: never[]) => T,
+): Promise<T> {
+  const error = await promise.catch((e: unknown) => e);
+  expect(error).toBeInstanceOf(ctor);
+  return error as T;
+}
 
 // Construct a synthetic graph node for cycle / edge-case / property tests.
 export function makeNode(id: string, prerequisites: string[] = []): GraphNode {

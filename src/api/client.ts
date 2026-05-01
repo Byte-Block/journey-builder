@@ -24,7 +24,9 @@ export class ApiError extends Error {
     public readonly problem: ProblemDetails,
   ) {
     const title = problem.title ?? `HTTP ${status}`;
-    const message = problem.detail ? `${status}: ${title} — ${problem.detail}` : `${status}: ${title}`;
+    const message = problem.detail
+      ? `${status}: ${title} — ${problem.detail}`
+      : `${status}: ${title}`;
     super(message);
     this.name = "ApiError";
   }
