@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (.env.development is committed for working dev defaults;
+# .env.local is gitignored for personal overrides)
 .env*
+!.env.development
 
 # vercel
 .vercel
