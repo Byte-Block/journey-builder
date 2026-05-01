@@ -1,5 +1,5 @@
-import { GraphSchema } from "@/domain/schema";
-import type { Graph } from "@/domain/types";
+import { GraphSchema, ProblemDetailsSchema } from "@/domain/schema";
+import type { Graph, ProblemDetails } from "@/domain/types";
 
 export type PathLayout = "unversioned" | "versioned";
 
@@ -18,6 +18,34 @@ export type FetchGraphOptions =
       blueprintVersionId: string;
     };
 
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly problem: ProblemDetails,
+  ) {
+    const title = problem.title ?? `HTTP ${status}`;
+    const message = problem.detail ? `${status}: ${title} — ${problem.detail}` : `${status}: ${title}`;
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+async function buildApiError(response: Response): Promise<ApiError> {
+  let problem: ProblemDetails = { title: response.statusText };
+
+  try {
+    const body = await response.json();
+    const parsed = ProblemDetailsSchema.safeParse(body);
+    if (parsed.success) {
+      problem = parsed.data;
+    }
+  } catch {
+    // TODO: Body wasn't JSON; keep the statusText fallback.
+  }
+
+  return new ApiError(response.status, problem);
+}
+
 function buildPath(opts: FetchGraphOptions): string {
   return opts.pathLayout === "unversioned"
     ? `/api/v1/${opts.tenantId}/actions/blueprints/${opts.blueprintId}/graph`
@@ -34,7 +62,7 @@ export async function fetchGraph(opts: FetchGraphOptions): Promise<Graph> {
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    throw await buildApiError(response);
   }
 
   const body = await response.json();
