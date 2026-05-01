@@ -6,3 +6,6 @@ node_modules/
 package-lock.json
 *.lock
 public/
+
+# Test fixtures should match the original API responses verbatim
+src/__tests__/fixtures/
