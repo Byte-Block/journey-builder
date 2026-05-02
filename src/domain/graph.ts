@@ -43,6 +43,7 @@ export function getTransitiveAncestors(nodeId: string, graph: Graph): ReadonlySe
 
   while (toVisit.length) {
     const id = toVisit.pop();
+    /* v8 ignore next 3 — NUIA-forced guard; while-condition above ensures pop returns a string */
     if (!id) {
       break;
     }
@@ -58,16 +59,34 @@ export function getTransitiveAncestors(nodeId: string, graph: Graph): ReadonlySe
   return visited;
 }
 
-// Internal Kahn's pass; returns processed order and unprocessed (cycle) nodes.
-function topoSortInternal(graph: Graph): {
+// Generic Kahn's input: any node-with-prerequisites shape, not just Graph.
+// Used by the form-DAG topo (via the Graph adapter) and the mapping-graph
+// cycle check (state/cycles.ts) — same algorithm, different node universes.
+export type ToposortItem = { id: string; prerequisites: readonly string[] };
+
+// Kahn's pass over a generic item list; returns processed order and unprocessed (cycle) nodes.
+function topoSortItems(items: ReadonlyArray<ToposortItem>): {
   order: string[];
   unprocessed: string[];
 } {
-  const adjacency = buildAdjacency(graph);
+  const adj = new Map<string, Set<string>>();
   const inDegree = new Map<string, number>();
 
-  for (const node of graph.nodes) {
-    inDegree.set(node.id, node.data.prerequisites.length);
+  // Seed every node so leaves (no children) still appear, and so missing-prereq
+  // detection can fire below.
+  for (const item of items) {
+    adj.set(item.id, new Set());
+    inDegree.set(item.id, item.prerequisites.length);
+  }
+
+  for (const item of items) {
+    for (const parent of item.prerequisites) {
+      const children = adj.get(parent);
+      if (!children) {
+        throw new Error(`Item ${item.id} references missing prerequisite: ${parent}`);
+      }
+      children.add(item.id);
+    }
   }
 
   const queue: string[] = [];
@@ -81,12 +100,14 @@ function topoSortInternal(graph: Graph): {
   const order: string[] = [];
   while (head < queue.length) {
     const id = queue[head++];
+    /* v8 ignore next 3 — NUIA-forced guard; head < length ensures the index hits an element */
     if (!id) {
       break;
     }
     order.push(id);
 
-    const children = adjacency.get(id);
+    const children = adj.get(id);
+    /* v8 ignore next 3 — NUIA-forced guard; every queued id was seeded into adj above */
     if (!children) {
       continue;
     }
@@ -102,14 +123,29 @@ function topoSortInternal(graph: Graph): {
   }
 
   const processedSet = new Set(order);
-  const unprocessed = graph.nodes.map((n) => n.id).filter((id) => !processedSet.has(id));
+  const unprocessed = items.map((i) => i.id).filter((id) => !processedSet.has(id));
 
   return { order, unprocessed };
+}
+
+// Adapter form Graph => generic items.
+function topoSortInternal(graph: Graph): {
+  order: string[];
+  unprocessed: string[];
+} {
+  return topoSortItems(graph.nodes.map((n) => ({ id: n.id, prerequisites: n.data.prerequisites })));
 }
 
 // Topological order (parents before children); null if the graph has a cycle.
 export function topologicalSort(graph: Graph): string[] | null {
   const { order, unprocessed } = topoSortInternal(graph);
+  return !unprocessed.length ? order : null;
+}
+
+// Generic topological sort over any {id, prerequisites} list. Used by the
+// mapping-graph cycle check; null on cycle, identical semantics to topologicalSort.
+export function topologicalSortItems(items: ReadonlyArray<ToposortItem>): string[] | null {
+  const { order, unprocessed } = topoSortItems(items);
   return !unprocessed.length ? order : null;
 }
 

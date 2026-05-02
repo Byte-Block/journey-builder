@@ -9,6 +9,7 @@ export const DirectFormSource: DataSource = {
 
   getTree(ctx) {
     const entry = ctx.ancestors.get(ctx.targetNodeId);
+    /* v8 ignore next 3 — defensive; modal only opens for known target nodes */
     if (!entry) {
       return [];
     }

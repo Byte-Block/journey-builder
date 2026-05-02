@@ -6,6 +6,7 @@ import {
   getDirectAncestors,
   getTransitiveAncestors,
   topologicalSort,
+  topologicalSortItems,
   validateAcyclic,
 } from "@/domain/graph";
 import { GraphSchema } from "@/domain/schema";
@@ -62,6 +63,46 @@ describe("buildAdjacency", () => {
 
     expect(adj.get(id)).toEqual(expected);
   });
+
+  it("Throws when a node references a prerequisite that isn't in the graph", () => {
+    const broken: Graph = {
+      tenant_id: "test",
+      nodes: [makeNode("A", ["ghost"])],
+      edges: [],
+      forms: [],
+      branches: [],
+      triggers: [],
+    };
+
+    expect(() => buildAdjacency(broken)).toThrow(/missing prerequisite: ghost/);
+  });
+});
+
+describe("topologicalSortItems", () => {
+  it("Returns parents before children for a generic item list", () => {
+    const order = topologicalSortItems([
+      { id: "a", prerequisites: [] },
+      { id: "b", prerequisites: ["a"] },
+      { id: "c", prerequisites: ["b"] },
+    ]);
+
+    expect(order).toEqual(["a", "b", "c"]);
+  });
+
+  it("Returns null when the item list is cyclic", () => {
+    const order = topologicalSortItems([
+      { id: "a", prerequisites: ["b"] },
+      { id: "b", prerequisites: ["a"] },
+    ]);
+
+    expect(order).toBeNull();
+  });
+
+  it("Throws when an item references a prerequisite that isn't in the list", () => 
+    expect(() => topologicalSortItems([{ id: "a", prerequisites: ["ghost"] }])).toThrow(
+      /missing prerequisite: ghost/,
+    )
+  );
 });
 
 describe("getTransitiveAncestors", () => {

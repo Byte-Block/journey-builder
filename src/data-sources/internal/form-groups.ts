@@ -11,10 +11,12 @@ export function formGroupsFor(
 
   for (const nodeId of nodeIds) {
     const node = nodesById.get(nodeId);
+    /* v8 ignore next 3 — defensive; nodeIds come from AncestorIndex which only holds valid graph nodes */
     if (!node) {
       continue;
     }
     const form = formsById.get(node.data.component_id);
+    /* v8 ignore next 3 — defensive; nodes always reference a form in the same Zod-validated graph */
     if (!form) {
       continue;
     }
