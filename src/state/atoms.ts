@@ -1,8 +1,6 @@
 import { atom } from "jotai";
-// TODO(jotai v3): atomFamily moves out of jotai/utils into the standalone
-// jotai-family package. Migration when v3 ships: `npm i jotai-family` and
-// change this import to `import { atomFamily } from "jotai-family"`.
-import { atomFamily, atomWithStorage } from "jotai/utils";
+import { atomFamily } from "jotai-family";
+import { atomWithStorage } from "jotai/utils";
 
 import type { MappingMap, PrefillRef } from "@/domain/types";
 
