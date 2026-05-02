@@ -31,6 +31,8 @@
 
   /* Iconography */
   --icon-size: 20px;
+  --icon-size-sm: 16px;
+  --button-circle-size: 24px;
 
   /* Typography */
   --font-stack:

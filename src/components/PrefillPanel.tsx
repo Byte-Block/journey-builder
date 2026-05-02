@@ -1,12 +1,13 @@
 "use client";
 
-import { Database } from "lucide-react";
 import { useMemo } from "react";
 
 import { buildLookups } from "@/domain/lookups";
+import { fieldMappingFamily } from "@/state/atoms";
 import type { Graph } from "@/domain/types";
 
 import { createWarnOnce } from "./internal/warn-once";
+import { PrefillFieldRow } from "./PrefillFieldRow";
 import styles from "./PrefillPanel.module.css";
 
 type Props = {
@@ -19,9 +20,9 @@ type Props = {
 // state worth surfacing without spamming the log.
 const warnOnce = createWarnOnce();
 
-// Right pane of the journey builder. Renders header + one row per field of
-// the selected form. State-specific row styling (empty / mapped / clear) is
-// 5.5's job; this stub just iterates and labels.
+// Right pane of the journey builder. Renders header + one PrefillFieldRow
+// per field of the selected form. The row owns its own atom subscription
+// (atom-as-prop) so cell updates don't ripple across siblings.
 export function PrefillPanel({ graph, selectedNodeId }: Props) {
   const lookups = useMemo(() => buildLookups(graph), [graph]);
 
@@ -44,7 +45,7 @@ export function PrefillPanel({ graph, selectedNodeId }: Props) {
     return Object.keys(form.field_schema.properties);
   }, [lookups, selectedNodeId]);
 
-  if (fields == null) {
+  if (fields == null || selectedNodeId == null) {
     return null;
   }
 
@@ -56,9 +57,13 @@ export function PrefillPanel({ graph, selectedNodeId }: Props) {
       </header>
       <ul className={styles.rows}>
         {fields.map((fieldKey) => (
-          <li key={fieldKey} className={styles.row}>
-            <Database aria-hidden className={styles.icon} />
-            <span className={styles.label}>{fieldKey}</span>
+          <li key={fieldKey}>
+            <PrefillFieldRow
+              fieldKey={fieldKey}
+              fieldAtom={fieldMappingFamily({ nodeId: selectedNodeId, fieldKey })}
+              lookups={lookups}
+              onOpenModal={() => {}}
+            />
           </li>
         ))}
       </ul>

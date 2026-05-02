@@ -103,3 +103,7 @@ export const fieldMappingFamily = atomFamily(
     ),
   (a, b) => a.nodeId == b.nodeId && a.fieldKey == b.fieldKey,
 );
+
+// Atom-as-prop type for PrefillFieldRow. Inferred from the family so it stays
+// in sync with the read/write signature above.
+export type FieldAtom = ReturnType<typeof fieldMappingFamily>;
