@@ -2,6 +2,8 @@
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
+import { ErrorFallback } from "./ErrorFallback";
+
 type FallbackRender = (error: Error, retry: () => void) => ReactNode;
 
 type Props = {
@@ -12,13 +14,7 @@ type Props = {
 type State = { error: Error | null };
 
 const defaultFallback: FallbackRender = (error, retry) => (
-  <div role="alert">
-    <h2>Something went wrong</h2>
-    <p>{error.message}</p>
-    <button type="button" onClick={retry}>
-      Try again
-    </button>
-  </div>
+  <ErrorFallback error={error} retry={retry} />
 );
 
 // Hand-rolled React error boundary. Catches render-time errors in any
