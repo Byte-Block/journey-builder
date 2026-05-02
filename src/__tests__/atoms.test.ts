@@ -1,11 +1,12 @@
 import { createStore } from "jotai";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { PrefillRef } from "@/domain/types";
 import { fieldMappingFamily, mappingsAtom } from "@/state/atoms";
 
 afterEach(() => {
   window.localStorage.clear();
+  vi.restoreAllMocks();
 });
 
 describe("fieldMappingFamily", () => {
@@ -68,7 +69,7 @@ describe("fieldMappingFamily", () => {
 });
 
 describe("mappingsAtom", () => {
-  it("Persists writes to localStorage under prefill-mappings as a single key", () => {
+  it("Persists writes to localStorage under prefill-mappings in a versioned envelope", () => {
     const store = createStore();
     const cell = fieldMappingFamily({ nodeId: "A", fieldKey: "email" });
     const ref: PrefillRef = {
@@ -80,8 +81,12 @@ describe("mappingsAtom", () => {
     store.set(cell, ref);
 
     const raw = window.localStorage.getItem("prefill-mappings");
+
     expect(raw).not.toBeNull();
-    expect(JSON.parse(raw!)).toEqual({ A: { email: ref } });
+    expect(JSON.parse(raw!)).toEqual({
+      schemaVersion: 1,
+      mappings: { A: { email: ref } },
+    });
     expect(window.localStorage.length).toBe(1);
   });
 
@@ -98,5 +103,88 @@ describe("mappingsAtom", () => {
     store.set(cell, null);
 
     expect(store.get(mappingsAtom)).toEqual({});
+  });
+});
+
+describe("mappingsAtom persistence schema versioning", () => {
+  const ref: PrefillRef = {
+    type: "form_field",
+    nodeId: "B",
+    fieldKey: "email",
+  };
+
+  it("Loads a valid v1 payload on first read", () => {
+    window.localStorage.setItem(
+      "prefill-mappings",
+      JSON.stringify({ schemaVersion: 1, mappings: { A: { email: ref } } }),
+    );
+
+    const store = createStore();
+    const unsub = store.sub(mappingsAtom, () => {});
+    try {
+      expect(store.get(mappingsAtom)).toEqual({ A: { email: ref } });
+    } finally {
+      unsub();
+    }
+  });
+
+  it("Discards a payload with a stale schemaVersion and warns", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    window.localStorage.setItem(
+      "prefill-mappings",
+      JSON.stringify({ schemaVersion: 0, mappings: { A: { email: ref } } }),
+    );
+
+    const store = createStore();
+    const unsub = store.sub(mappingsAtom, () => {});
+    try {
+      expect(store.get(mappingsAtom)).toEqual({});
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("schemaVersion"));
+    } finally {
+      unsub();
+    }
+  });
+
+  it("Discards a malformed JSON payload and warns", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    window.localStorage.setItem("prefill-mappings", "{not json");
+
+    const store = createStore();
+    const unsub = store.sub(mappingsAtom, () => {});
+    try {
+      expect(store.get(mappingsAtom)).toEqual({});
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("parse error"));
+    } finally {
+      unsub();
+    }
+  });
+
+  it("Discards a payload missing the envelope shape and warns", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    window.localStorage.setItem("prefill-mappings", JSON.stringify({ A: { email: ref } }));
+
+    const store = createStore();
+    const unsub = store.sub(mappingsAtom, () => {});
+    try {
+      expect(store.get(mappingsAtom)).toEqual({});
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("malformed"));
+    } finally {
+      unsub();
+    }
+  });
+
+  it("Round-trips writes through localStorage into a fresh store", () => {
+    const writer = createStore();
+    const cell = fieldMappingFamily({ nodeId: "A", fieldKey: "email" });
+    writer.set(cell, ref);
+
+    const reader = createStore();
+    const unsub = reader.sub(mappingsAtom, () => {});
+    try {
+      expect(reader.get(mappingsAtom)).toEqual({ A: { email: ref } });
+      expect(reader.get(cell)).toEqual(ref);
+    } finally {
+      unsub();
+    }
   });
 });
