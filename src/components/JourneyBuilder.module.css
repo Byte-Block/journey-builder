@@ -9,3 +9,9 @@
   font-size: var(--font-size-h1);
   font-weight: var(--font-weight-bold);
 }
+
+.split {
+  display: grid;
+  grid-template-columns: var(--list-width) 1fr;
+  gap: var(--spacing-section);
+}

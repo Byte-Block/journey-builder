@@ -22,8 +22,7 @@ const baseOpts = {
   blueprintId: "bp_test",
 };
 
-const concreteUnversionedUrl =
-  "http://test.local/api/v1/1/actions/blueprints/bp_test/graph";
+const concreteUnversionedUrl = "http://test.local/api/v1/1/actions/blueprints/bp_test/graph";
 const graphUrlPattern = "http://test.local/api/v1/:tenant/actions/blueprints/:bp/graph";
 
 describe("fetchGraph", () => {
@@ -78,9 +77,7 @@ describe("fetchGraph", () => {
 
     expect(error.status).toBe(404);
     expect(error.problem.title).toBe("Not Found");
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("error body was not JSON"),
-    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("error body was not JSON"));
   });
 });
 

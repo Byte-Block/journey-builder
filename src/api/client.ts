@@ -16,7 +16,12 @@ export type FetchGraphOptions =
       blueprintVersionId: string;
     };
 
-function envOrThrow(env: NodeJS.ProcessEnv, key: string): string {
+// Structural shape of an env-var bag — `process.env` widens to this, and
+// tests can pass plain object literals without satisfying NodeJS.ProcessEnv's
+// required NODE_ENV / etc. The function only reads named keys.
+type EnvBag = Record<string, string | undefined>;
+
+function envOrThrow(env: EnvBag, key: string): string {
   const value = env[key];
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
@@ -28,9 +33,7 @@ function envOrThrow(env: NodeJS.ProcessEnv, key: string): string {
 // matching FetchGraphOptions variant. Caller defaults to process.env; tests
 // inject a plain object. Throws on missing or invalid variables — the message
 // names the failing key so the RSC error.tsx surfaces a debuggable cause.
-export function getFetchGraphOptionsFromEnv(
-  env: NodeJS.ProcessEnv = process.env,
-): FetchGraphOptions {
+export function getFetchGraphOptionsFromEnv(env: EnvBag = process.env): FetchGraphOptions {
   const apiBase = envOrThrow(env, "API_BASE");
   const pathLayout = envOrThrow(env, "API_PATH_LAYOUT");
   if (pathLayout != "unversioned" && pathLayout != "versioned") {

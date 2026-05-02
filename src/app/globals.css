@@ -15,10 +15,14 @@
   --color-row-mapped: var(--color-border);
 
   /* Spacing */
+  --spacing-2xs: 4px;
   --spacing-row: 14px 16px;
   --spacing-row-gap: 12px;
   --spacing-section: 24px;
   --spacing-page: 32px;
+
+  /* Layout widths */
+  --list-width: 280px;
 
   /* Radius */
   --radius-row: 8px;

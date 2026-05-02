@@ -30,9 +30,7 @@ describe("FormList", () => {
   });
 
   it("Reflects selectedNodeId via aria-selected on the matching row", () => {
-    render(
-      <FormList graph={graph} selectedNodeId={idByName("Form A")} onSelect={() => {}} />,
-    );
+    render(<FormList graph={graph} selectedNodeId={idByName("Form A")} onSelect={() => {}} />);
 
     const row = screen.getByText("Form A").closest('[role="option"]');
     expect(row).toHaveAttribute("aria-selected", "true");
@@ -61,13 +59,7 @@ describe("FormList", () => {
     const user = userEvent.setup();
     const selections: string[] = [];
 
-    render(
-      <FormList
-        graph={graph}
-        selectedNodeId={null}
-        onSelect={(id) => selections.push(id)}
-      />,
-    );
+    render(<FormList graph={graph} selectedNodeId={null} onSelect={(id) => selections.push(id)} />);
 
     // First option (Form A) is the initial focused option (roving tabindex).
     await user.tab();
@@ -82,20 +74,12 @@ describe("FormList", () => {
     const user = userEvent.setup();
     const selections: string[] = [];
 
-    render(
-      <FormList
-        graph={graph}
-        selectedNodeId={null}
-        onSelect={(id) => selections.push(id)}
-      />,
-    );
+    render(<FormList graph={graph} selectedNodeId={null} onSelect={(id) => selections.push(id)} />);
 
     // Capture the actual rendered order so navigation assertions don't depend
     // on tie-breaking between same-depth peers (B vs C, D vs E) — Kahn's
     // produces one valid topo order; both orderings are correct.
-    const orderedIds = screen
-      .getAllByRole("option")
-      .map((el) => idByName(el.textContent ?? ""));
+    const orderedIds = screen.getAllByRole("option").map((el) => idByName(el.textContent ?? ""));
 
     await user.tab(); // focus first
     await user.keyboard("{ArrowDown}{Enter}"); // → 2nd
@@ -147,9 +131,7 @@ describe("FormList", () => {
     );
 
     expect(screen.getAllByRole("option")).toHaveLength(2);
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("skipping non-form node branch-1"),
-    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("skipping non-form node branch-1"));
 
     // Re-render with the same synthetic graph: Set must dedupe the warn.
     const callsAfterFirst = warn.mock.calls.length;
@@ -174,8 +156,6 @@ describe("FormList", () => {
 
     const labels = screen.getAllByRole("option").map((el) => el.textContent);
     expect(labels).toEqual(["A", "B"]);
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("topologicalSort returned null"),
-    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("topologicalSort returned null"));
   });
 });

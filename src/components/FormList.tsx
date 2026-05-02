@@ -7,6 +7,7 @@ import { topologicalSort } from "@/domain/graph";
 import { buildLookups } from "@/domain/lookups";
 import type { Graph, GraphNode } from "@/domain/types";
 
+import { createWarnOnce } from "./internal/warn-once";
 import styles from "./FormList.module.css";
 
 type Props = {
@@ -18,18 +19,15 @@ type Props = {
 // Module-scoped so the once-semantics survive re-renders and HMR module
 // reloads — the spec ("warns once via console.warn") is about per-process
 // log volume, not per-render. Production log destinations (server captures,
-// aggregators) meter every line; this Set keeps each unique non-form node
-// to one warn line per process lifetime.
-const warnedNonForm = new Set<string>();
+// aggregators) meter every line; this keeps each unique non-form node to
+// one warn per process lifetime.
+const warnSkipped = createWarnOnce();
 
 const isFormNode = (node: GraphNode): boolean => {
   if (node.type == "form") {
     return true;
   }
-  if (!warnedNonForm.has(node.id)) {
-    warnedNonForm.add(node.id);
-    console.warn(`[FormList] skipping non-form node ${node.id} (type=${node.type})`);
-  }
+  warnSkipped(node.id, `[FormList] skipping non-form node ${node.id} (type=${node.type})`);
   return false;
 };
 
@@ -121,12 +119,7 @@ export function FormList({ graph, selectedNodeId, onSelect }: Props) {
   };
 
   return (
-    <ul
-      className={styles.list}
-      role="listbox"
-      aria-label="Forms"
-      onKeyDown={handleKeyDown}
-    >
+    <ul className={styles.list} role="listbox" aria-label="Forms" onKeyDown={handleKeyDown}>
       {items.map(({ nodeId, label }) => {
         const isSelected = nodeId == selectedNodeId;
         const isFocused = nodeId == focusedNodeId;
