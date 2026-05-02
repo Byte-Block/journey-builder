@@ -98,11 +98,10 @@ describe("topologicalSortItems", () => {
     expect(order).toBeNull();
   });
 
-  it("Throws when an item references a prerequisite that isn't in the list", () => 
+  it("Throws when an item references a prerequisite that isn't in the list", () =>
     expect(() => topologicalSortItems([{ id: "a", prerequisites: ["ghost"] }])).toThrow(
       /missing prerequisite: ghost/,
-    )
-  );
+    ));
 });
 
 describe("getTransitiveAncestors", () => {
