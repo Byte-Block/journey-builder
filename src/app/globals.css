@@ -23,6 +23,12 @@
 
   /* Layout widths */
   --list-width: 280px;
+  --modal-max-width: 640px;
+  --modal-fluid-width: 90vw;
+  --modal-max-height: 80vh;
+
+  /* Overlay */
+  --color-overlay: rgba(15, 23, 42, 0.4);
 
   /* Radius */
   --radius-row: 8px;
