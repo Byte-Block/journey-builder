@@ -1,8 +1,6 @@
 import { GraphSchema, ProblemDetailsSchema } from "@/domain/schema";
 import type { Graph, ProblemDetails } from "@/domain/types";
 
-export type PathLayout = "unversioned" | "versioned";
-
 export type FetchGraphOptions =
   | {
       apiBase: string;
@@ -17,6 +15,43 @@ export type FetchGraphOptions =
       blueprintId: string;
       blueprintVersionId: string;
     };
+
+function envOrThrow(env: NodeJS.ProcessEnv, key: string): string {
+  const value = env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+}
+
+// Reads the env-var contract documented in .env.development and returns the
+// matching FetchGraphOptions variant. Caller defaults to process.env; tests
+// inject a plain object. Throws on missing or invalid variables — the message
+// names the failing key so the RSC error.tsx surfaces a debuggable cause.
+export function getFetchGraphOptionsFromEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): FetchGraphOptions {
+  const apiBase = envOrThrow(env, "API_BASE");
+  const pathLayout = envOrThrow(env, "API_PATH_LAYOUT");
+  if (pathLayout != "unversioned" && pathLayout != "versioned") {
+    throw new Error(
+      `Invalid API_PATH_LAYOUT: "${pathLayout}" — expected "unversioned" or "versioned"`,
+    );
+  }
+  const tenantId = envOrThrow(env, "TENANT_ID");
+  const blueprintId = envOrThrow(env, "BLUEPRINT_ID");
+
+  if (pathLayout == "unversioned") {
+    return { apiBase, pathLayout, tenantId, blueprintId };
+  }
+  return {
+    apiBase,
+    pathLayout,
+    tenantId,
+    blueprintId,
+    blueprintVersionId: envOrThrow(env, "BLUEPRINT_VERSION_ID"),
+  };
+}
 
 export class ApiError extends Error {
   constructor(
@@ -42,14 +77,16 @@ async function buildApiError(response: Response): Promise<ApiError> {
       problem = parsed.data;
     }
   } catch {
-    // TODO: Body wasn't JSON; keep the statusText fallback.
+    console.warn(
+      `[api] HTTP ${response.status} ${response.url}: error body was not JSON, using statusText fallback`,
+    );
   }
 
   return new ApiError(response.status, problem);
 }
 
 function buildPath(opts: FetchGraphOptions): string {
-  return opts.pathLayout === "unversioned"
+  return opts.pathLayout == "unversioned"
     ? `/api/v1/${opts.tenantId}/actions/blueprints/${opts.blueprintId}/graph`
     : `/api/v1/${opts.tenantId}/actions/blueprints/${opts.blueprintId}/${opts.blueprintVersionId}/graph`;
 }
