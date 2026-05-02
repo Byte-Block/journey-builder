@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
+
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { JotaiProvider } from "@/state/JotaiProvider";
+
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -23,8 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={geistSans.variable}>
+      <body>
+        <JotaiProvider>
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </JotaiProvider>
+      </body>
     </html>
   );
 }
