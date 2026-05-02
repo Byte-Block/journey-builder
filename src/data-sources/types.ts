@@ -1,13 +1,16 @@
 import type { AncestorIndex } from "@/domain/graph";
-import type { Graph, PrefillRef } from "@/domain/types";
+import type { FormDef, Graph, GraphNode, PrefillRef } from "@/domain/types";
 
 export type { PrefillRef };
 
-// Threaded into every DataSource call. `ancestors` is pre-built for O(1) lookups.
+// Threaded into every DataSource call. `ancestors`, `nodesById`, `formsById`
+// are all pre-built so sources do O(1) lookups instead of linear finds.
 export type DataSourceContext = {
   graph: Graph;
   targetNodeId: string;
   ancestors: AncestorIndex;
+  nodesById: ReadonlyMap<string, GraphNode>;
+  formsById: ReadonlyMap<string, FormDef>;
 };
 
 // Modal tree shape — recursive groups, selectable leaves.
