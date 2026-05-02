@@ -1,0 +1,11 @@
+.root {
+  padding: var(--spacing-page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-section);
+}
+
+.title {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+}
