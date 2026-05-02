@@ -21,11 +21,7 @@ const isPersisted = (v: unknown): v is Persisted => {
     return false;
   }
   const o = v as Record<string, unknown>;
-  return (
-    typeof o.schemaVersion == "number" &&
-    typeof o.mappings == "object" &&
-    o.mappings != null
-  );
+  return typeof o.schemaVersion == "number" && typeof o.mappings == "object" && o.mappings != null;
 };
 
 // No `subscribe` method — cross-tab updates via `storage` events don't

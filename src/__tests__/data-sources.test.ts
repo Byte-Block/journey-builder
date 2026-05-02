@@ -7,27 +7,20 @@ import { DirectFormSource } from "@/data-sources/sources/direct-form";
 import { TransitiveFormSource } from "@/data-sources/sources/transitive-form";
 import type { DataNode, DataSource, DataSourceContext } from "@/data-sources/types";
 import { buildAncestorIndex } from "@/domain/graph";
+import { buildLookups } from "@/domain/lookups";
 import { GraphSchema } from "@/domain/schema";
-import type { FormDef, GraphNode } from "@/domain/types";
 import { describe, expect, it } from "vitest";
 import mockGraphJson from "./fixtures/graph.json";
+import { nodeFinder } from "./helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
 const ancestors = buildAncestorIndex(graph);
-const nodesById: ReadonlyMap<string, GraphNode> = new Map(graph.nodes.map((n) => [n.id, n]));
-const formsById: ReadonlyMap<string, FormDef> = new Map(graph.forms.map((f) => [f.id, f]));
-
-const findNode = (name: string): GraphNode => {
-  const node = graph.nodes.find((n) => n.data.name === name);
-  if (!node) {
-    throw new Error(`No fixture node named ${name}`);
-  }
-  return node;
-};
+const { nodesById, formsById } = buildLookups(graph);
+const { idByName } = nodeFinder(graph);
 
 const ctxFor = (targetName: string): DataSourceContext => ({
   graph,
-  targetNodeId: findNode(targetName).id,
+  targetNodeId: idByName(targetName),
   ancestors,
   nodesById,
   formsById,

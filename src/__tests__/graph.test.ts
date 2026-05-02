@@ -12,20 +12,10 @@ import { GraphSchema } from "@/domain/schema";
 import type { Graph } from "@/domain/types";
 import { describe, expect, it } from "vitest";
 import mockGraphJson from "./fixtures/graph.json";
-import { makeNode } from "./helpers";
+import { makeNode, nodeFinder } from "./helpers";
 
 const mockGraph = GraphSchema.parse(mockGraphJson);
-const idByName = new Map<string, string>(mockGraph.nodes.map((n) => [n.data.name, n.id]));
-
-function nodeIdByName(name: string): string {
-  const id = idByName.get(name);
-
-  if (!id) {
-    throw new Error(`Form "${name}" not found in fixture`);
-  }
-
-  return id;
-}
+const { idByName: nodeIdByName } = nodeFinder(mockGraph);
 
 // 2-node cycle (A → B → A) for cycle-detection tests.
 const cyclicGraph: Graph = {

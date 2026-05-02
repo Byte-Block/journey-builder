@@ -1,5 +1,26 @@
-import type { GraphNode } from "@/domain/types";
+import type { Graph, GraphNode } from "@/domain/types";
 import { expect } from "vitest";
+
+// Resolve fixture nodes by their human-readable `data.name` (e.g. "Form A").
+// Built once per fixture; both byName (full node) and idByName (id only) hit
+// the same O(1) Map. Throws on a name miss so tests fail loudly.
+export function nodeFinder(graph: Graph): {
+  byName: (name: string) => GraphNode;
+  idByName: (name: string) => string;
+} {
+  const map = new Map(graph.nodes.map((n) => [n.data.name, n]));
+  const byName = (name: string): GraphNode => {
+    const node = map.get(name);
+    if (!node) {
+      throw new Error(`No fixture node named "${name}"`);
+    }
+    return node;
+  };
+  return {
+    byName,
+    idByName: (name) => byName(name).id,
+  };
+}
 
 // Returns the typed error so callers can assert on its fields.
 export async function rejectsAs<T>(
