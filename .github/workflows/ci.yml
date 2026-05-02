@@ -33,6 +33,13 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      - name: No magic hex in module CSS
+        run: |
+          if grep -rEn '#[0-9a-fA-F]{3,8}\b' src --include='*.module.css'; then
+            echo "::error::Magic hex literals found in *.module.css — reference design tokens from globals.css instead"
+            exit 1
+          fi
+
       - name: Typecheck
         run: npm run typecheck
 
