@@ -1,27 +1,29 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 
 import type { Graph } from "@/domain/types";
 
+import { FormList } from "./FormList";
 import styles from "./JourneyBuilder.module.css";
 
 type Props = { graph: Graph };
 
-// Stub for P5.2 — proves the graph parsed server-side made it to the client.
-// FormList (5.3), PrefillPanel (5.4), and the modal flow (5.6–5.8) replace
-// this body in subsequent steps.
+// Top-level Client Component for the prefill UI. Owns the ephemeral
+// selectedNodeId UI state and wires the form list. PrefillPanel (5.4) will
+// read selectedNodeId via the same prop-passing pattern; promote to atom
+// only when a sibling outside this tree needs read access.
 export function JourneyBuilder({ graph }: Props) {
-  const formCount = useMemo(
-    () => graph.nodes.filter((n) => n.type == "form").length,
-    [graph],
-  );
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
   return (
     <main className={styles.root}>
       <h1 className={styles.title}>{graph.name}</h1>
-      <p>
-        {formCount} {formCount == 1 ? "form" : "forms"}
-      </p>
+      <FormList
+        graph={graph}
+        selectedNodeId={selectedNodeId}
+        onSelect={setSelectedNodeId}
+      />
     </main>
   );
 }
