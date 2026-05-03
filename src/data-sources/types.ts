@@ -18,6 +18,10 @@ export type DataNode =
   | { kind: "group"; id: string; label: string; children: readonly DataNode[] }
   | { kind: "leaf"; id: string; label: string; ref: PrefillRef };
 
+// Leaf-only narrowing of DataNode. Consumed by DataSourceTree's onSelectLeaf
+// callback and by PrefillModal when extracting the selected leaf's ref.
+export type LeafNode = Extract<DataNode, { kind: "leaf" }>;
+
 /**
  * Pluggable prefill source. New source = new file + one register() line in index.ts.
  *

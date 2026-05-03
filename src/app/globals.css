@@ -30,6 +30,9 @@
   /* Overlay */
   --color-overlay: rgba(15, 23, 42, 0.4);
 
+  /* Tree */
+  --tree-indent: 16px;
+
   /* Radius */
   --radius-row: 8px;
   --radius-card: 12px;
