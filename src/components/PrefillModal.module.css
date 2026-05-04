@@ -1,0 +1,23 @@
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-section);
+}
+
+.selectButton {
+  padding: var(--spacing-row);
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: var(--font-weight-bold);
+}
+
+.selectButton:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.selectButton:disabled {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}

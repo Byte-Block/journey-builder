@@ -50,13 +50,7 @@ const sampleTree: readonly DataNode[] = [
 
 describe("DataSourceTree", () => {
   it("Renders all top-level groups and their leaf labels", () => {
-    render(
-      <DataSourceTree
-        tree={sampleTree}
-        selectedLeafId={null}
-        onSelectLeaf={() => {}}
-      />,
-    );
+    render(<DataSourceTree tree={sampleTree} selectedLeafId={null} onSelectLeaf={() => {}} />);
 
     expect(screen.getByText("Form A")).toBeInTheDocument();
     expect(screen.getByText("Globals")).toBeInTheDocument();
@@ -66,13 +60,7 @@ describe("DataSourceTree", () => {
 
   it("Toggles the <details> open attribute when summary is clicked", async () => {
     const user = userEvent.setup();
-    render(
-      <DataSourceTree
-        tree={sampleTree}
-        selectedLeafId={null}
-        onSelectLeaf={() => {}}
-      />,
-    );
+    render(<DataSourceTree tree={sampleTree} selectedLeafId={null} onSelectLeaf={() => {}} />);
 
     const formA = screen.getByText("Form A").closest("details");
     expect(formA).not.toHaveAttribute("open");
@@ -110,11 +98,7 @@ describe("DataSourceTree", () => {
 
   it("Reflects selectedLeafId via aria-pressed on the matching leaf", () => {
     render(
-      <DataSourceTree
-        tree={sampleTree}
-        selectedLeafId="form-a:email"
-        onSelectLeaf={() => {}}
-      />,
+      <DataSourceTree tree={sampleTree} selectedLeafId="form-a:email" onSelectLeaf={() => {}} />,
     );
 
     const emailLeaf = screen.getByText("email").closest("button");
@@ -125,13 +109,7 @@ describe("DataSourceTree", () => {
   });
 
   it("Renders nested groups recursively without leaking source-specific knowledge", () => {
-    render(
-      <DataSourceTree
-        tree={sampleTree}
-        selectedLeafId={null}
-        onSelectLeaf={() => {}}
-      />,
-    );
+    render(<DataSourceTree tree={sampleTree} selectedLeafId={null} onSelectLeaf={() => {}} />);
 
     // <details> children stay in the DOM even when collapsed; getByText finds
     // them via text content regardless of visibility — proves the recursive
@@ -142,11 +120,7 @@ describe("DataSourceTree", () => {
 
   it("Has no axe violations on the rendered tree", async () => {
     const { container } = render(
-      <DataSourceTree
-        tree={sampleTree}
-        selectedLeafId="form-a:email"
-        onSelectLeaf={() => {}}
-      />,
+      <DataSourceTree tree={sampleTree} selectedLeafId="form-a:email" onSelectLeaf={() => {}} />,
     );
 
     const results = await axe(container);

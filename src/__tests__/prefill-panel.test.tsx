@@ -2,12 +2,14 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PrefillPanel } from "@/components/PrefillPanel";
+import { buildAncestorIndex } from "@/domain/graph";
 import { GraphSchema } from "@/domain/schema";
 
 import mockGraphJson from "./fixtures/graph.json";
 import { nodeFinder } from "./helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
+const ancestors = buildAncestorIndex(graph);
 const { byName, idByName } = nodeFinder(graph);
 
 afterEach(() => {
@@ -16,13 +18,17 @@ afterEach(() => {
 
 describe("PrefillPanel", () => {
   it("Renders nothing when no form is selected", () => {
-    const { container } = render(<PrefillPanel graph={graph} selectedNodeId={null} />);
+    const { container } = render(
+      <PrefillPanel graph={graph} selectedNodeId={null} ancestors={ancestors} />,
+    );
 
     expect(container).toBeEmptyDOMElement();
   });
 
   it("Renders header and one row per field for the selected form", () => {
-    render(<PrefillPanel graph={graph} selectedNodeId={idByName("Form A")} />);
+    render(
+      <PrefillPanel graph={graph} selectedNodeId={idByName("Form A")} ancestors={ancestors} />,
+    );
 
     expect(screen.getByText("Prefill")).toBeInTheDocument();
     expect(screen.getByText("Prefill fields for this form")).toBeInTheDocument();
@@ -45,7 +51,9 @@ describe("PrefillPanel", () => {
   });
 
   it("Renders fields in schema-declared insertion order", () => {
-    render(<PrefillPanel graph={graph} selectedNodeId={idByName("Form A")} />);
+    render(
+      <PrefillPanel graph={graph} selectedNodeId={idByName("Form A")} ancestors={ancestors} />,
+    );
 
     const formId = byName("Form A").data.component_id;
     const form = graph.forms.find((f) => f.id == formId);
@@ -62,14 +70,14 @@ describe("PrefillPanel", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     const { container, rerender } = render(
-      <PrefillPanel graph={graph} selectedNodeId="form-zzz" />,
+      <PrefillPanel graph={graph} selectedNodeId="form-zzz" ancestors={ancestors} />,
     );
 
     expect(container).toBeEmptyDOMElement();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("node form-zzz not in graph"));
 
     const callsAfterFirst = warn.mock.calls.length;
-    rerender(<PrefillPanel graph={graph} selectedNodeId="form-zzz" />);
+    rerender(<PrefillPanel graph={graph} selectedNodeId="form-zzz" ancestors={ancestors} />);
     expect(warn.mock.calls.length).toBe(callsAfterFirst);
   });
 
@@ -84,7 +92,11 @@ describe("PrefillPanel", () => {
     };
 
     const { container } = render(
-      <PrefillPanel graph={graphWithoutFormA} selectedNodeId={idByName("Form A")} />,
+      <PrefillPanel
+        graph={graphWithoutFormA}
+        selectedNodeId={idByName("Form A")}
+        ancestors={ancestors}
+      />,
     );
 
     expect(container).toBeEmptyDOMElement();
