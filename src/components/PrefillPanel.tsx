@@ -48,7 +48,6 @@ export function PrefillPanel({ graph, selectedNodeId, ancestors }: Props) {
     return Object.keys(form.field_schema.properties);
   }, [lookups, selectedNodeId]);
 
-  
   if (selectedNodeId == null) {
     return (
       <section className={styles.panel} aria-label="Prefill">
@@ -56,11 +55,11 @@ export function PrefillPanel({ graph, selectedNodeId, ancestors }: Props) {
       </section>
     );
   }
-  
+
   if (fields == null) {
     return null;
   }
-  
+
   return (
     <section className={styles.panel} aria-label="Prefill">
       <header className={styles.header}>

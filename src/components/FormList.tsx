@@ -51,7 +51,7 @@ export function FormList({ graph, selectedNodeId, onSelect }: Props) {
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(
     selectedNodeId ?? items[0]?.nodeId ?? null,
   );
-  
+
   const optionRefs = useRef<Map<string, HTMLLIElement>>(new Map());
 
   const moveFocus = (nodeId: string) => {
