@@ -17,7 +17,7 @@ import type { Graph } from "@/domain/types";
 import { fieldMappingFamily, mappingsAtom } from "@/state/atoms";
 import { wouldCreateCycle, type ProposedMapping } from "@/state/cycles";
 
-import { DataSourceTree } from "./DataSourceTree";
+import { DataSourceTree } from "./dataSourceTree/DataSourceTree";
 import { Modal } from "./Modal";
 import styles from "./PrefillModal.module.css";
 
@@ -31,12 +31,6 @@ type Props = {
   fieldKey: string;
 };
 
-// Wires the data-source tree, cycle guard, and write-the-mapping action into
-// the Modal shell. Tree is collected per-open and cancelled if the modal
-// closes (or its inputs change) before the async sources resolve. Cycle guard
-// runs at SELECT time only — wouldCreateCycle is bounded work per render but
-// we still gate it on a non-null candidate to skip the projection when there's
-// nothing to check.
 export function PrefillModal({
   open,
   onOpenChange,

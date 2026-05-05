@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { JotaiProvider } from "@/state/JotaiProvider";
 
 import "./globals.css";

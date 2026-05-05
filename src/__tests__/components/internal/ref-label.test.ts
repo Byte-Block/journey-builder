@@ -5,8 +5,8 @@ import { buildLookups } from "@/domain/lookups";
 import { GraphSchema } from "@/domain/schema";
 import type { PrefillRef } from "@/domain/types";
 
-import mockGraphJson from "./fixtures/graph.json";
-import { nodeFinder } from "./helpers";
+import mockGraphJson from "../../fixtures/graph.json";
+import { nodeFinder } from "../../domain/helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
 const lookups = buildLookups(graph);

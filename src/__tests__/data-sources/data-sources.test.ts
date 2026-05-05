@@ -10,8 +10,8 @@ import { buildAncestorIndex } from "@/domain/graph";
 import { buildLookups } from "@/domain/lookups";
 import { GraphSchema } from "@/domain/schema";
 import { describe, expect, it } from "vitest";
-import mockGraphJson from "./fixtures/graph.json";
-import { nodeFinder } from "./helpers";
+import mockGraphJson from "../fixtures/graph.json";
+import { nodeFinder } from "../domain/helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
 const ancestors = buildAncestorIndex(graph);

@@ -5,10 +5,6 @@ type Props = {
   retry: () => void;
 };
 
-// Shared error-state UI for both <ErrorBoundary> (client-side render errors)
-// and app/error.tsx (RSC throws). In development, exposes a collapsible
-// diagnostics panel with the stack and Next's error digest when present —
-// the conditional tree-shakes out at build time in production.
 export function ErrorFallback({ error, retry }: Props): ReactNode {
   return (
     <div role="alert">

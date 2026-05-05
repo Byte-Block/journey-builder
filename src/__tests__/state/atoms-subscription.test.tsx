@@ -9,8 +9,6 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-// Render-counter probe. Closure-scoped counter (not useRef) so Strict Mode's
-// double-render still increments as expected — relative deltas remain truthful.
 const makeProbe = (nodeId: string, fieldKey: string) => {
   let count = 0;
   const Probe = () => {

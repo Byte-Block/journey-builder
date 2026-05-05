@@ -5,8 +5,8 @@ import { PrefillPanel } from "@/components/PrefillPanel";
 import { buildAncestorIndex } from "@/domain/graph";
 import { GraphSchema } from "@/domain/schema";
 
-import mockGraphJson from "./fixtures/graph.json";
-import { nodeFinder } from "./helpers";
+import mockGraphJson from "../fixtures/graph.json";
+import { nodeFinder } from "../domain/helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
 const ancestors = buildAncestorIndex(graph);
@@ -17,12 +17,10 @@ afterEach(() => {
 });
 
 describe("PrefillPanel", () => {
-  it("Renders nothing when no form is selected", () => {
-    const { container } = render(
-      <PrefillPanel graph={graph} selectedNodeId={null} ancestors={ancestors} />,
-    );
+  it("Renders the placeholder when no form is selected", () => {
+    render(<PrefillPanel graph={graph} selectedNodeId={null} ancestors={ancestors} />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByText("Select a form to view its prefill mappings")).toBeInTheDocument();
   });
 
   it("Renders header and one row per field for the selected form", () => {

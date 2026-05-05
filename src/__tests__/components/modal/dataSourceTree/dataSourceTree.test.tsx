@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { axe } from "vitest-axe";
 
-import { DataSourceTree } from "@/components/DataSourceTree";
+import { DataSourceTree } from "@/components/modal/dataSourceTree/DataSourceTree";
 import type { DataNode } from "@/data-sources/types";
 
 const sampleTree: readonly DataNode[] = [

@@ -8,8 +8,8 @@ import { fieldMappingFamily } from "@/state/atoms";
 import type { Graph } from "@/domain/types";
 
 import { createWarnOnce } from "./internal/warn-once";
-import { PrefillFieldRow } from "./PrefillFieldRow";
-import { PrefillModal } from "./PrefillModal";
+import { PrefillFieldRow } from "./fieldRow/PrefillFieldRow";
+import { PrefillModal } from "./modal/PrefillModal";
 import styles from "./PrefillPanel.module.css";
 
 type Props = {
@@ -19,13 +19,8 @@ type Props = {
 };
 
 // Once-per-process warns for missing graph entries — selectedNodeId only
-// flows from FormList which emits known node ids, so a miss means stale
-// state worth surfacing without spamming the log.
 const warnOnce = createWarnOnce();
 
-// Right pane of the journey builder. Renders header + one PrefillFieldRow
-// per field of the selected form. The row owns its own atom subscription
-// (atom-as-prop) so cell updates don't ripple across siblings.
 export function PrefillPanel({ graph, selectedNodeId, ancestors }: Props) {
   const lookups = useMemo(() => buildLookups(graph), [graph]);
   // Field key whose modal is open, or null when no modal is showing.
@@ -36,12 +31,15 @@ export function PrefillPanel({ graph, selectedNodeId, ancestors }: Props) {
       return null;
     }
     const node = lookups.nodesById.get(selectedNodeId);
+
     if (!node) {
       warnOnce(selectedNodeId, `[PrefillPanel] node ${selectedNodeId} not in graph`);
       return null;
     }
+
     const formId = node.data.component_id;
     const form = lookups.formsById.get(formId);
+
     if (!form) {
       warnOnce(formId, `[PrefillPanel] form ${formId} not in graph.forms`);
       return null;
@@ -50,10 +48,19 @@ export function PrefillPanel({ graph, selectedNodeId, ancestors }: Props) {
     return Object.keys(form.field_schema.properties);
   }, [lookups, selectedNodeId]);
 
-  if (fields == null || selectedNodeId == null) {
+  
+  if (selectedNodeId == null) {
+    return (
+      <section className={styles.panel} aria-label="Prefill">
+        <p className={styles.placeholder}>Select a form to view its prefill mappings</p>
+      </section>
+    );
+  }
+  
+  if (fields == null) {
     return null;
   }
-
+  
   return (
     <section className={styles.panel} aria-label="Prefill">
       <header className={styles.header}>

@@ -5,13 +5,9 @@ import { atomWithStorage } from "jotai/utils";
 import type { MappingMap, PrefillRef } from "@/domain/types";
 
 const STORAGE_KEY = "prefill-mappings";
-// Bump SCHEMA_VERSION when the persisted shape changes. Default policy is
-// reject-and-discard on mismatch (see getItem below). Add a per-version
-// migration branch only if a real upgrade requires preserving prior mappings.
+// Bump SCHEMA_VERSION when the persisted shape changes.
 const SCHEMA_VERSION = 1;
 
-// Persisted envelope — versioning lets us detect old payloads on reload and
-// fall back to {} rather than feed a stale shape into the new app.
 type Persisted = { schemaVersion: number; mappings: MappingMap };
 
 const isPersisted = (v: unknown): v is Persisted => {
@@ -22,9 +18,6 @@ const isPersisted = (v: unknown): v is Persisted => {
   return typeof o.schemaVersion == "number" && typeof o.mappings == "object" && o.mappings != null;
 };
 
-// No `subscribe` method — cross-tab updates via `storage` events don't
-// propagate. Out of scope for the take-home; see PLAN-04 deferred improvements
-// for the implementation sketch if this is ever needed.
 const versionedMappingsStorage = {
   getItem: (key: string, initialValue: MappingMap): MappingMap => {
     if (typeof window == "undefined") {

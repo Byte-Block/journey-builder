@@ -1,6 +1,6 @@
 import { FieldDefSchema, GraphSchema, ProblemDetailsSchema } from "@/domain/schema";
 import { describe, expect, it } from "vitest";
-import mockGraphJson from "./fixtures/graph.json";
+import mockGraphJson from "../fixtures/graph.json";
 
 describe("GraphSchema", () => {
   it("Parses a valid graph", () => {

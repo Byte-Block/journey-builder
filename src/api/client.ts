@@ -16,9 +16,7 @@ export type FetchGraphOptions =
       blueprintVersionId: string;
     };
 
-// Structural shape of an env-var bag — `process.env` widens to this, and
-// tests can pass plain object literals without satisfying NodeJS.ProcessEnv's
-// required NODE_ENV / etc. The function only reads named keys.
+// Structural shape of an env-var bag — `process.env`
 type EnvBag = Record<string, string | undefined>;
 
 function envOrThrow(env: EnvBag, key: string): string {
@@ -30,9 +28,7 @@ function envOrThrow(env: EnvBag, key: string): string {
 }
 
 // Reads the env-var contract documented in .env.development and returns the
-// matching FetchGraphOptions variant. Caller defaults to process.env; tests
-// inject a plain object. Throws on missing or invalid variables — the message
-// names the failing key so the RSC error.tsx surfaces a debuggable cause.
+// matching FetchGraphOptions variant.
 export function getFetchGraphOptionsFromEnv(env: EnvBag = process.env): FetchGraphOptions {
   const apiBase = envOrThrow(env, "API_BASE");
   const pathLayout = envOrThrow(env, "API_PATH_LAYOUT");

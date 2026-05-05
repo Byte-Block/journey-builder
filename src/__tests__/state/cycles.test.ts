@@ -4,8 +4,8 @@ import { GraphSchema } from "@/domain/schema";
 import type { Graph, MappingMap, PrefillRef } from "@/domain/types";
 import { mappingsToGraph, wouldCreateCycle, type ProposedMapping } from "@/state/cycles";
 
-import mockGraphJson from "./fixtures/graph.json";
-import { nodeFinder } from "./helpers";
+import mockGraphJson from "../fixtures/graph.json";
+import { nodeFinder } from "../domain/helpers";
 
 const graph: Graph = GraphSchema.parse(mockGraphJson);
 const { idByName } = nodeFinder(graph);

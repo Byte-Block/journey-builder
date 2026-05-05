@@ -12,7 +12,7 @@ import {
 import { GraphSchema } from "@/domain/schema";
 import type { Graph } from "@/domain/types";
 import { describe, expect, it } from "vitest";
-import mockGraphJson from "./fixtures/graph.json";
+import mockGraphJson from "../fixtures/graph.json";
 import { makeNode, nodeFinder } from "./helpers";
 
 const mockGraph = GraphSchema.parse(mockGraphJson);

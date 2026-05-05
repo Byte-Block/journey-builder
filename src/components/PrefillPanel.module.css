@@ -27,3 +27,8 @@
   flex-direction: column;
   gap: var(--spacing-row-gap);
 }
+
+.placeholder {
+  color: var(--color-text-muted);
+  padding: var(--spacing-row);
+}

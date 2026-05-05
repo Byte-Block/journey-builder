@@ -3,8 +3,8 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { ZodError } from "zod";
-import mockGraphJson from "./fixtures/graph.json";
-import { rejectsAs } from "./helpers";
+import mockGraphJson from "../fixtures/graph.json";
+import { rejectsAs } from "../domain/helpers";
 
 const server = setupServer();
 
@@ -27,7 +27,6 @@ const graphUrlPattern = "http://test.local/api/v1/:tenant/actions/blueprints/:bp
 
 describe("fetchGraph", () => {
   it("Returns a parsed Graph on 200 and hits the unversioned URL exactly", async () => {
-    // Concrete URL pins buildPath's segment order against accidental shuffles.
     server.use(http.get(concreteUnversionedUrl, () => HttpResponse.json(mockGraphJson)));
 
     const graph = await fetchGraph(baseOpts);

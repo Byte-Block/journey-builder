@@ -6,8 +6,8 @@ import type { Graph, MappingMap, PrefillRef } from "@/domain/types";
 import { mappingsAtom } from "@/state/atoms";
 import { cleanupOrphans, pruneOrphansInto } from "@/state/cleanup";
 
-import mockGraphJson from "./fixtures/graph.json";
-import { nodeFinder } from "./helpers";
+import mockGraphJson from "../fixtures/graph.json";
+import { nodeFinder } from "../domain/helpers";
 
 const graph: Graph = GraphSchema.parse(mockGraphJson);
 const { idByName } = nodeFinder(graph);

@@ -12,9 +12,6 @@ type Props = {
   onSelectLeaf: (leaf: LeafNode) => void;
 };
 
-// Recursive renderer for the modal tree. Native <details> for group toggles;
-// <button> for selectable leaves. Operates purely on the DataNode shape —
-// has no knowledge of which DataSource produced any given subtree.
 export function DataSourceTree({ tree, selectedLeafId, onSelectLeaf }: Props) {
   return (
     <ul className={styles.list}>

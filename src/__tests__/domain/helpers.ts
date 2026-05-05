@@ -1,9 +1,6 @@
 import type { Graph, GraphNode } from "@/domain/types";
 import { expect } from "vitest";
 
-// Resolve fixture nodes by their human-readable `data.name` (e.g. "Form A").
-// Built once per fixture; both byName (full node) and idByName (id only) hit
-// the same O(1) Map. Throws on a name miss so tests fail loudly.
 export function nodeFinder(graph: Graph): {
   byName: (name: string) => GraphNode;
   idByName: (name: string) => string;

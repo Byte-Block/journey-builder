@@ -13,14 +13,6 @@ type Props = {
   children: ReactNode;
 };
 
-// Reusable modal shell wrapping Radix Dialog. Future MUI swap is a one-file
-// change — keep consumers (PrefillModal etc.) calling <Modal>, not Radix
-// directly. Title is required for a11y; description is optional context for
-// screen readers. Radix manages focus trap, escape handling, overlay-click
-// dismissal, and aria roles automatically.
-//
-// Close affordances (Cancel, SELECT, X) are the consumer's responsibility —
-// this shell renders only the chrome every modal needs.
 export function Modal({ open, onOpenChange, title, description, children }: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

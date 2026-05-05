@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { ErrorFallback } from "@/components/ErrorFallback";
+import { ErrorFallback } from "@/components/error/ErrorFallback";
 
 type Props = {
   error: Error & { digest?: string };

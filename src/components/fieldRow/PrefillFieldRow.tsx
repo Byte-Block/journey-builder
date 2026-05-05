@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import type { GraphLookups } from "@/domain/lookups";
 import type { FieldAtom } from "@/state/atoms";
 
-import { getRefLabel } from "./internal/ref-label";
+import { getRefLabel } from "../internal/ref-label";
 import styles from "./PrefillFieldRow.module.css";
 
 type Props = {
@@ -17,9 +17,6 @@ type Props = {
   onOpenModal: (fieldKey: string) => void;
 };
 
-// One row per form field. Subscribes to its own atom from fieldMappingFamily
-// (atom-as-prop) so updates to other rows' atoms don't rerender it — see
-// prefill-field-row.test.tsx for the Profiler-based atomic-subscription check.
 export function PrefillFieldRow({ fieldKey, fieldAtom, lookups, onOpenModal }: Props) {
   const [ref, setRef] = useAtom(fieldAtom);
   const refLabel = useMemo(() => (ref == null ? null : getRefLabel(ref, lookups)), [ref, lookups]);

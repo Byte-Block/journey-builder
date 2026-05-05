@@ -16,11 +16,6 @@ type Props = {
   onSelect: (nodeId: string) => void;
 };
 
-// Module-scoped so the once-semantics survive re-renders and HMR module
-// reloads — the spec ("warns once via console.warn") is about per-process
-// log volume, not per-render. Production log destinations (server captures,
-// aggregators) meter every line; this keeps each unique non-form node to
-// one warn per process lifetime.
 const warnSkipped = createWarnOnce();
 
 const isFormNode = (node: GraphNode): boolean => {
@@ -39,10 +34,8 @@ export function FormList({ graph, selectedNodeId, onSelect }: Props) {
     const orderedIds = topologicalSort(graph);
 
     let formNodes: GraphNode[];
+
     if (orderedIds == null) {
-      // Defensive — should never fire post-validateAcyclic at load. If a
-      // post-load mutation introduced a cycle, render insertion order so
-      // the user still sees the list.
       console.warn("[FormList] topologicalSort returned null; falling back to insertion order");
       formNodes = graph.nodes.filter(isFormNode);
     } else {
@@ -52,18 +45,13 @@ export function FormList({ graph, selectedNodeId, onSelect }: Props) {
         .filter(isFormNode);
     }
 
-    // node.data.name carries the per-instance label ("Form A"); form.name in
-    // the mock is the generic "test form" canonical, shared across instances
-    // that reference the same FormDef.
     return formNodes.map((node) => ({ nodeId: node.id, label: node.data.name }));
   }, [graph]);
 
-  // Roving tabindex: exactly one option holds tabIndex=0 at any time, so the
-  // listbox occupies one tab stop. Arrow/Home/End move focus between options
-  // without leaving the listbox; Enter/Space activate the focused option.
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(
     selectedNodeId ?? items[0]?.nodeId ?? null,
   );
+  
   const optionRefs = useRef<Map<string, HTMLLIElement>>(new Map());
 
   const moveFocus = (nodeId: string) => {

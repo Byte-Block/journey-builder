@@ -6,10 +6,6 @@ import { mappingsAtom } from "@/state/atoms";
 
 type Store = ReturnType<typeof createStore>;
 
-// Drop mappings that point to nodes or fields that no longer exist in the
-// graph. Both target side (the cell) and source side (form_field PrefillRef)
-// are checked. Globals are stubbed and treated as always-valid. One
-// console.info per dropped mapping so a graph migration is visible.
 export function cleanupOrphans(graph: Graph, mappings: MappingMap): MappingMap {
   const { nodesById, formsById } = buildLookups(graph);
 
@@ -86,9 +82,6 @@ export function cleanupOrphans(graph: Graph, mappings: MappingMap): MappingMap {
   return changed ? result : mappings;
 }
 
-// Wire-up: read mappingsAtom, prune, write back. Called once after fetchGraph
-// resolves (typically from JourneyBuilder's mount effect in PLAN-05). Skips
-// the write when nothing changed so subscribers don't re-fire spuriously.
 export function pruneOrphansInto(store: Store, graph: Graph): void {
   const current = store.get(mappingsAtom);
   const pruned = cleanupOrphans(graph, current);

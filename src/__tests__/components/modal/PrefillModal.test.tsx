@@ -3,15 +3,15 @@ import userEvent from "@testing-library/user-event";
 import { Provider, createStore } from "jotai";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { PrefillModal } from "@/components/PrefillModal";
+import { PrefillModal } from "@/components/modal/PrefillModal";
 import { buildAncestorIndex } from "@/domain/graph";
 import { buildLookups } from "@/domain/lookups";
 import { GraphSchema } from "@/domain/schema";
 import type { MappingMap } from "@/domain/types";
 import { fieldMappingFamily, mappingsAtom } from "@/state/atoms";
 
-import mockGraphJson from "./fixtures/graph.json";
-import { nodeFinder } from "./helpers";
+import mockGraphJson from "../../fixtures/graph.json";
+import { nodeFinder } from "../../domain/helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
 const lookups = buildLookups(graph);
@@ -49,16 +49,12 @@ describe("PrefillModal", () => {
   it("Renders the four expected source groups when opened for Form D", async () => {
     renderModal();
 
-    // Tree populates async — wait for the first group to appear.
     await screen.findByText("Action Properties");
 
-    expect(screen.getByText("Action Properties")).toBeInTheDocument();
     expect(screen.getByText("Client Organisation Properties")).toBeInTheDocument();
     expect(screen.getByText("Form A")).toBeInTheDocument();
     expect(screen.getByText("Form B")).toBeInTheDocument();
 
-    // Each top-level group label must be unique — direct vs. transitive should
-    // never both surface the same upstream form.
     expect(screen.getAllByText("Form A")).toHaveLength(1);
     expect(screen.getAllByText("Form B")).toHaveLength(1);
   });

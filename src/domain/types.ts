@@ -31,7 +31,6 @@ export type Graph = z.infer<typeof GraphSchema>;
 export type ProblemDetails = z.infer<typeof ProblemDetailsSchema>;
 
 // What a field maps to in the prefill model. Convertible to dl_prefill_* rules
-// for the eventual production save (action-component-form-update).
 export type PrefillRef =
   | { type: "form_field"; nodeId: string; fieldKey: string }
   | { type: "global"; scope: string; key: string };

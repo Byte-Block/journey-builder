@@ -17,9 +17,6 @@ const defaultFallback: FallbackRender = (error, retry) => (
   <ErrorFallback error={error} retry={retry} />
 );
 
-// Hand-rolled React error boundary. Catches render-time errors in any
-// descendant Client Component and renders the fallback. Sits inside layout.tsx
-// as the inner net; app/error.tsx is the outer net catching RSC throws.
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
 

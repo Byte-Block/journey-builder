@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/modal/Modal";
 
 afterEach(() => {
   vi.restoreAllMocks();

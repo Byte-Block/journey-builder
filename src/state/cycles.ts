@@ -2,25 +2,14 @@ import { topologicalSortItems, type ToposortItem } from "@/domain/graph";
 import { buildLookups } from "@/domain/lookups";
 import type { Graph, MappingMap, PrefillRef } from "@/domain/types";
 
-// Mapping-graph node ID — encodes a single field cell as a single string so
-// it can flow through the generic topo-sort kernel.
 const compositeId = (nodeId: string, fieldKey: string): string => `${nodeId}.${fieldKey}`;
 
-// One mapping in flight — the UI's candidate before commit. Used by
-// wouldCreateCycle to project "current + proposed" and ask if it would close
-// a cycle in the field-prefill graph.
 export type ProposedMapping = {
   targetNodeId: string;
   targetFieldKey: string;
   ref: PrefillRef;
 };
 
-// Project current mappings as a graph of fields. Nodes are field cells
-// (composite "<nodeId>.<fieldKey>"); each mapping is an edge from its source
-// cell to its target cell (target is prefilled from source). Mappings whose
-// endpoints don't resolve in formGraph are skipped — orphan cleanup runs at
-// load, but staying defensive here means cycle checks never trip on stale
-// state. Global refs don't participate; they're external to the field graph.
 export function mappingsToGraph(mappings: MappingMap, formGraph: Graph): readonly ToposortItem[] {
   const { nodesById, formsById } = buildLookups(formGraph);
 
@@ -70,9 +59,6 @@ export function mappingsToGraph(mappings: MappingMap, formGraph: Graph): readonl
   return [...items.values()];
 }
 
-// True if applying `proposed` on top of `mappings` would close a cycle in the
-// field-prefill graph. Used by the modal at SELECT time to disable cyclic
-// choices with an explanatory tooltip (PLAN-05 step 5.8).
 export function wouldCreateCycle(
   mappings: MappingMap,
   formGraph: Graph,

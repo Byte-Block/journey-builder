@@ -189,7 +189,6 @@ export function buildAncestorIndex(graph: Graph): AncestorIndex {
     const direct = getDirectAncestors(id, graph);
     const transitive = new Set<string>();
 
-    // transitive(n) = direct(n) ∪ ⋃ transitive(parent)
     for (const parent of direct) {
       transitive.add(parent);
       const parentEntry = index.get(parent);

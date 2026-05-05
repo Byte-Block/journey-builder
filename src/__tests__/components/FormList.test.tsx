@@ -6,8 +6,8 @@ import { FormList } from "@/components/FormList";
 import { GraphSchema } from "@/domain/schema";
 import type { Graph, GraphNode } from "@/domain/types";
 
-import mockGraphJson from "./fixtures/graph.json";
-import { makeNode, nodeFinder } from "./helpers";
+import mockGraphJson from "../fixtures/graph.json";
+import { makeNode, nodeFinder } from "../domain/helpers";
 
 const graph = GraphSchema.parse(mockGraphJson);
 const { idByName } = nodeFinder(graph);

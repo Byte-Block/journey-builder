@@ -11,12 +11,9 @@ import { PrefillPanel } from "./PrefillPanel";
 
 type Props = { graph: Graph };
 
-// Top-level Client Component for the prefill UI. Owns the ephemeral
-// selectedNodeId UI state and wires the form list + prefill panel. Promote
-// selectedNodeId to atom only when a sibling outside this tree needs read access.
 export function JourneyBuilder({ graph }: Props) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  // Built once per graph; downstream sources read from this in O(1).
+
   const ancestors = useMemo(() => buildAncestorIndex(graph), [graph]);
 
   return (
