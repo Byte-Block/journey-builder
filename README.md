@@ -6,8 +6,6 @@ DAG-aware end-to-end: forms render in topological order, mapping cycles are prev
 
 Designed for extensibility: a plugin registry for new data sources, and per-feature state atoms that don't leak into a central store. Adding a new data source requires no edits to existing code; a dedicated test mechanically enforces this contract.
 
-> **Status: in development.** This README is a placeholder.
-
 > Node 22.22.2 (see `.nvmrc`).
 
 ## Quick start
